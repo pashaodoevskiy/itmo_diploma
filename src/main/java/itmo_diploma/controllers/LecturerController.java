@@ -5,15 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import itmo_diploma.requests.LecturerRequest;
 import itmo_diploma.services.LecturerService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+@Tag(name = "Преподаватели")
 @RestController
 @RequestMapping("/api/lecturer")
-@Tag(name = "Преподаватели")
+@RequiredArgsConstructor
 public class LecturerController extends Controller {
 
     private final LecturerService lecturerService;

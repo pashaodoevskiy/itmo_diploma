@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import itmo_diploma.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,13 +12,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Entity
 @Builder
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User extends BaseEntity implements UserDetails {
 
     @Id
@@ -41,28 +43,15 @@ public class User extends BaseEntity implements UserDetails {
     String phone;
 
     @Column(unique = true, nullable = false)
-    private String email;
+    String email;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    Role role;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "user")
     @JsonIgnore
-    @JoinTable(name = "user_course",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName="id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id", referencedColumnName="id"))
-    List<Course> courses;
-
-    public void addCourse(Course course) {
-        courses.add(course);
-        course.getUsers().add(this);
-    }
-
-    public void removeCourse(Course course) {
-        courses.remove(course);
-        course.getUsers().remove(this);
-    }
+    private List<UserCourse> courses;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

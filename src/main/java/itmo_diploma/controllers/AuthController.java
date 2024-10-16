@@ -2,7 +2,7 @@ package itmo_diploma.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import itmo_diploma.exceptions.RecordAlreadyExistsException;
+import itmo_diploma.exceptions.CustomException;
 import itmo_diploma.requests.auth.SignInRequest;
 import itmo_diploma.requests.auth.SignUpRequest;
 import itmo_diploma.services.auth.AuthenticationService;
@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Аутентификация")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Аутентификация")
 public class AuthController extends Controller{
     private final AuthenticationService authenticationService;
 
     @Operation(summary = "Регистрация пользователя")
     @PostMapping("/sign-up")
-    public ResponseEntity<Object> signUp(@RequestBody @Valid SignUpRequest request) throws RecordAlreadyExistsException {
+    public ResponseEntity<Object> signUp(@RequestBody @Valid SignUpRequest request) throws CustomException {
         return response(authenticationService.signUp(request));
     }
 

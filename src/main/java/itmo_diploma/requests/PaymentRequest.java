@@ -10,12 +10,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CourseToLecturerDto {
-    @NotNull(message = "Поле обязательно для заполнения")
-    @Max(value = 10000000000000000L)
-    Long lecturerId;
+public class PaymentRequest {
 
-    @NotNull(message = "Поле обязательно для заполнения")
+    @NotNull
     @Max(value = 10000000000000000L)
     Long courseId;
 }

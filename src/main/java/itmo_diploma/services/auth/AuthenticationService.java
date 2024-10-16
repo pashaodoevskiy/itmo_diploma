@@ -1,15 +1,15 @@
 package itmo_diploma.services.auth;
 
 import itmo_diploma.enums.Role;
-import itmo_diploma.exceptions.RecordAlreadyExistsException;
+import itmo_diploma.exceptions.CustomException;
 import itmo_diploma.models.User;
 import itmo_diploma.repositories.UserRepository;
 import itmo_diploma.requests.auth.SignInRequest;
 import itmo_diploma.requests.auth.SignUpRequest;
-import itmo_diploma.responses.JwtAuthenticationResponse;
+import itmo_diploma.responses.auth.JwtAuthenticationResponse;
 import itmo_diploma.services.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,10 +26,10 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
-    public JwtAuthenticationResponse signUp(SignUpRequest request) throws RecordAlreadyExistsException {
+    public JwtAuthenticationResponse signUp(SignUpRequest request) throws CustomException {
 
         if (userRepository.existsByUsernameOrEmailOrPhone(request.getUsername(), request.getEmail(), request.getPhone())) {
-            throw new RecordAlreadyExistsException("Пользователь уже существует");
+            throw new CustomException("Пользователь уже существует", HttpStatus.CONFLICT.value());
         }
 
         User user = User.builder()

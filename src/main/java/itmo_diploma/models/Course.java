@@ -2,6 +2,7 @@ package itmo_diploma.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class Course extends BaseEntity {
     @JsonBackReference
     Lecturer lecturer;
 
-    @ManyToMany(mappedBy = "courses")
-    List<User> users;
+    @OneToMany(mappedBy = "course")
+    @JsonIgnore
+    private List<UserCourse> userCourses;
 }

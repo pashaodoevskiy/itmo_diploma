@@ -1,18 +1,22 @@
 package itmo_diploma.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import itmo_diploma.exceptions.RecordAlreadyExistsException;
+import itmo_diploma.exceptions.CustomException;
 import itmo_diploma.exceptions.ValidationException;
 import itmo_diploma.models.Course;
 import itmo_diploma.models.Lecturer;
 import itmo_diploma.requests.CourseRequest;
 import itmo_diploma.requests.CourseToLecturerDto;
-import itmo_diploma.requests.LecturerRequest;
 import itmo_diploma.repositories.CourseRepository;
+import itmo_diploma.responses.CourseResponse;
+import itmo_diploma.responses.LecturerResponse;
+import itmo_diploma.responses.UserCourseResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Formatter;
 import java.util.List;
 
 @Service
@@ -24,20 +28,37 @@ public class CourseService {
     private final ObjectMapper mapper;
     private AuthService authService;
 
-    public CourseRequest create(CourseRequest courseRequest) throws ValidationException {
+    public Course getCourseFromDb(Long id) throws EntityNotFoundException {
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Курс не найден"));
+    }
+
+    private void isCourseExists(Long courseId) throws EntityNotFoundException {
+        if (!courseRepository.existsById(courseId)) {
+            throw new EntityNotFoundException("Курс не найден");
+        }
+    }
+
+    private void isCourseExists(String name) throws CustomException {
+        if (courseRepository.existsByName(name)) {
+            throw new CustomException(new Formatter().format("Курс с названием %s уже существует", name).toString(), HttpStatus.CONFLICT.value());
+        }
+    }
+
+    public CourseResponse create(CourseRequest courseRequest) throws ValidationException {
         Course course = mapper.convertValue(courseRequest, Course.class);
 
-        if (courseRepository.findByName(course.getName()) != null) {
-            throw new RecordAlreadyExistsException("Курс с таким названием уже существует");
-        }
+        isCourseExists(course.getName());
 
         Course savedCourse = courseRepository.save(course);
 
-        return mapper.convertValue(savedCourse, CourseRequest.class);
+        return mapper.convertValue(savedCourse, CourseResponse.class);
     }
 
     public void update(Long id, CourseRequest courseRequest) throws EntityNotFoundException {
         Course course = getCourseFromDb(id);
+
+        isCourseExists(course.getName());
 
         course.setName(courseRequest.getName() == null ? course.getName() : courseRequest.getName());
         course.setPrice(courseRequest.getPrice() == null ? course.getPrice() : courseRequest.getPrice());
@@ -48,23 +69,27 @@ public class CourseService {
     }
 
     public void delete(Long id) throws EntityNotFoundException {
-        isCourseExists(id);
+        Course course = getCourseFromDb(id);
+
+        if (!course.getUserCourses().isEmpty()) {
+            throw new CustomException("Нельзя удалить курс если на него записаны пользователи");
+        }
 
         courseRepository.deleteById(id);
     }
 
-    public CourseRequest get(Long id) throws EntityNotFoundException {
+    public CourseResponse get(Long id) throws EntityNotFoundException {
         isCourseExists(id);
 
         Course course = getCourseFromDb(id);
-        CourseRequest courseRequest = mapper.convertValue(course, CourseRequest.class);
-        courseRequest.setLecturer(mapper.convertValue(course.getLecturer(), LecturerRequest.class));
+        CourseResponse courseResponse = mapper.convertValue(course, CourseResponse.class);
+        courseResponse.setLecturer(mapper.convertValue(course.getLecturer(), LecturerResponse.class));
 
-        return courseRequest;
+        return courseResponse;
     }
 
-    public List<CourseRequest> getAll() {
-        return prepareCourseRequests(courseRepository.findAll());
+    public List<CourseResponse> getAll() {
+        return convertToResponse(courseRepository.findAll());
     }
 
     public void addLecturer(CourseToLecturerDto courseToLecturerDto) throws EntityNotFoundException {
@@ -90,35 +115,41 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    public Course getCourseFromDb(Long id) throws EntityNotFoundException {
-        return courseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Курс не найден"));
+    public List<UserCourseResponse> getUserCourses() {
+
+        return authService.getCurrentUser().getCourses().stream()
+                .map(userCourse -> {
+                    Course course = userCourse.getCourse();
+
+                    return UserCourseResponse.builder()
+                            .id(course.getId())
+                            .name(course.getName())
+                            .price(course.getPrice())
+                            .isPaid(userCourse.getIsPaid())
+                            .startDate(course.getStartDate())
+                            .endDate(course.getEndDate())
+                            .paymentDate(userCourse.getPaymentDate())
+                            .paymentType(userCourse.getPaymentType())
+                            .lecturer(mapper.convertValue(course.getLecturer(), LecturerResponse.class))
+                            .build();
+                })
+                .toList();
     }
 
-    private void isCourseExists(Long courseId) throws EntityNotFoundException {
-        if (!courseRepository.existsById(courseId)) {
-            throw new EntityNotFoundException("Курс не найден");
-        }
-    }
-
-    public List<CourseRequest> getUserCourses() {
-        return prepareCourseRequests(authService.getCurrentUser().getCourses());
-    }
-
-    public List<CourseRequest> getLecturerCourses(Long id) {
+    public List<CourseResponse> getLecturerCourses(Long id) {
         Lecturer lecturer = lecturerService.getLecturerFromDb(id);
 
-        return prepareCourseRequests(lecturer.getCourses());
+        return convertToResponse(lecturer.getCourses());
     }
 
-    private List<CourseRequest> prepareCourseRequests(List<Course> courses) {
+    private List<CourseResponse> convertToResponse(List<Course> courses) {
         return courses.stream()
                 .map(course -> {
-                    CourseRequest courseRequest = mapper.convertValue(course, CourseRequest.class);
-                    LecturerRequest lecturerRequest = mapper.convertValue(course.getLecturer(), LecturerRequest.class);
+                    CourseResponse courseResponse = mapper.convertValue(course, CourseResponse.class);
+                    courseResponse.setLecturer(mapper.convertValue(course.getLecturer(), LecturerResponse.class));
 
-                    courseRequest.setLecturer(lecturerRequest);
-
-                    return courseRequest;
-                }).toList();
+                    return courseResponse;
+                })
+                .toList();
     }
 }

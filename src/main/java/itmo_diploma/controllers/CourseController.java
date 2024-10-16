@@ -6,15 +6,15 @@ import itmo_diploma.requests.CourseRequest;
 import itmo_diploma.requests.CourseToLecturerDto;
 import itmo_diploma.services.CourseService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+@Tag(name = "Курсы")
 @RestController
 @RequestMapping("/api/course")
-@Tag(name = "Курсы")
+@RequiredArgsConstructor
 public class CourseController extends Controller{
 
     private final CourseService courseService;

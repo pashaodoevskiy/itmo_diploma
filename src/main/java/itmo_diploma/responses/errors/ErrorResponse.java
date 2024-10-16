@@ -1,6 +1,5 @@
-package itmo_diploma.exceptions;
+package itmo_diploma.responses.errors;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

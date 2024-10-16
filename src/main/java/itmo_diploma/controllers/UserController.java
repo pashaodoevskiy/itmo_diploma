@@ -11,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@RequiredArgsConstructor
+@Tag(name = "Пользователи")
 @RestController
 @RequestMapping("/api/user")
-@Tag(name = "Пользователи")
+@RequiredArgsConstructor
 public class UserController extends Controller {
 
     private final UserService userService;
@@ -31,14 +31,6 @@ public class UserController extends Controller {
     @GetMapping
     public ResponseEntity<Object> get() {
         return response(userService.get());
-    }
-
-    @Operation(summary = "Удалить пользователя")
-    @DeleteMapping
-    public ResponseEntity<Object> delete() {
-        userService.delete();
-
-        return response();
     }
 
     @Operation(summary = "Записаться на курс")

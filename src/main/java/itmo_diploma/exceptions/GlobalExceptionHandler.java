@@ -1,5 +1,7 @@
 package itmo_diploma.exceptions;
 
+import itmo_diploma.responses.errors.ErrorResponse;
+import itmo_diploma.responses.errors.ValidationErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -47,9 +49,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResponse("AuthorizationDeniedException", ex.getMessage()));
     }
 
-    @ExceptionHandler(RecordAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(RecordAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("RecordAlreadyExistsException", ex.getMessage()));
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(CustomException ex) {
+        return ResponseEntity.status(ex.getCode()).body(new ErrorResponse("InternalError", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
