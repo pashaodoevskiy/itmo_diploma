@@ -27,7 +27,7 @@ public class LecturerController extends Controller {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    @Operation(summary = "Обновить преподавателя")
+    @Operation(summary = "Обновить информацию о преподавателе")
     public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid LecturerRequest lecturerRequest) {
         lecturerService.update(id, lecturerRequest);
 
