@@ -1,0 +1,6 @@
+package itmo_diploma.enums;
+
+public enum Role {
+    ROLE_USER,
+    ROLE_ADMIN
+}
