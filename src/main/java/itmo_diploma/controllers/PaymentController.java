@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/payment")
 @AllArgsConstructor
-public class PaymentController extends Controller {
+public class PaymentController {
 
     private PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<Object> pay(@RequestBody @Valid PaymentRequest paymentRequest) {
+    public ResponseEntity<Void> pay(@RequestBody @Valid PaymentRequest paymentRequest) {
         paymentService.pay(paymentRequest);
 
-        return response();
+        return ResponseEntity.ok().build();
     }
 }
