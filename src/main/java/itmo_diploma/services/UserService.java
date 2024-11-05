@@ -9,14 +9,14 @@ import itmo_diploma.requests.UserRequest;
 import itmo_diploma.repositories.UserRepository;
 import itmo_diploma.responses.UserResponse;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;

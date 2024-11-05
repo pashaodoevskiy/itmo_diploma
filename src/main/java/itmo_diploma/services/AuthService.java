@@ -1,7 +1,7 @@
 package itmo_diploma.services;
 
 import itmo_diploma.models.User;
-import itmo_diploma.repositories.StudentRepository;
+import itmo_diploma.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final StudentRepository repository;
+    private final UserRepository repository;
 
     public User save(User user) {
         return repository.save(user);
@@ -22,7 +22,7 @@ public class AuthService {
         return save(user);
     }
 
-    public User getByUsername(String username) {
+    public User getByUsername(String username) throws EntityNotFoundException {
         return repository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }

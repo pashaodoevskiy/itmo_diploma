@@ -13,8 +13,8 @@ public class UserRequest extends Request {
     @Max(value = 10000000000000000L, groups = Update.class)
     Long id;
 
-    @NotEmpty(groups = Save.class, message = "Имя пользователя не может быть пустыми")
-    @Size(min = 3, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
+    @NotEmpty(groups = Save.class, message = "Поле обязательно для заполнения")
+    @Size(min = 3, max = 50, message = "Логин пользователя должен содержать от 5 до 50 символов")
     String username;
 
     @NotEmpty(groups = Save.class, message = "Поле обязательно для заполнения")
